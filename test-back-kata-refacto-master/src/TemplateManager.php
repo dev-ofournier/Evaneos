@@ -30,7 +30,7 @@ class TemplateManager
             if ($this->hasText($text, '[quote:destination_link]')) {
                 $destination = DestinationRepository::getInstance()->getById($quote->destinationId);
             }
-            
+
             if ($this->hasText($text, '[quote:summary_html]')) {
                 $text = str_replace(
                     '[quote:summary_html]',
@@ -44,22 +44,6 @@ class TemplateManager
                     Quote::renderText($_quoteFromRepository),
                     $text
                 );
-            }
-            if ($containsSummaryHtml !== false || $containsSummary !== false) {
-                if ($containsSummaryHtml !== false) {
-                    $text = str_replace(
-                        '[quote:summary_html]',
-                        Quote::renderHtml($_quoteFromRepository),
-                        $text
-                    );
-                }
-                if ($containsSummary !== false) {
-                    $text = str_replace(
-                        '[quote:summary]',
-                        Quote::renderText($_quoteFromRepository),
-                        $text
-                    );
-                }
             }
 
             if ($this->hasText($text, '[quote:destination_name]')) {
