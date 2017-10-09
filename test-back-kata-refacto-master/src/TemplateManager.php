@@ -27,13 +27,27 @@ class TemplateManager
             $usefulObject = SiteRepository::getInstance()->getById($quote->siteId);
             $destinationOfQuote = DestinationRepository::getInstance()->getById($quote->destinationId);
 
-            if(strpos($text, '[quote:destination_link]') !== false){
+            if ($this->hasText($text, '[quote:destination_link]')) {
                 $destination = DestinationRepository::getInstance()->getById($quote->destinationId);
             }
 
             $containsSummaryHtml = strpos($text, '[quote:summary_html]');
             $containsSummary     = strpos($text, '[quote:summary]');
 
+            if ($this->hasText($text, '[quote:summary_html]')) {
+                $text = str_replace(
+                    '[quote:summary_html]',
+                    Quote::renderHtml($_quoteFromRepository),
+                    $text
+                );
+            }
+            if ($this->hasText($text, '[quote:summary]')) {
+                $text = str_replace(
+                    '[quote:summary]',
+                    Quote::renderText($_quoteFromRepository),
+                    $text
+                );
+            }
             if ($containsSummaryHtml !== false || $containsSummary !== false) {
                 if ($containsSummaryHtml !== false) {
                     $text = str_replace(
@@ -51,7 +65,9 @@ class TemplateManager
                 }
             }
 
-            (strpos($text, '[quote:destination_name]') !== false) and $text = str_replace('[quote:destination_name]',$destinationOfQuote->countryName,$text);
+            if ($this->hasText($text, '[quote:destination_name]')) {
+                $text = str_replace('[quote:destination_name]',$destinationOfQuote->countryName,$text);
+            }
         }
 
         if (isset($destination))
@@ -64,10 +80,21 @@ class TemplateManager
          * [user:*]
          */
         $_user  = (isset($data['user'])  and ($data['user']  instanceof User))  ? $data['user']  : $APPLICATION_CONTEXT->getCurrentUser();
-        if($_user) {
-            (strpos($text, '[user:first_name]') !== false) and $text = str_replace('[user:first_name]'       , ucfirst(mb_strtolower($_user->firstname)), $text);
+        if($_user && $this->hasText($text, '[user:first_name]')) {
+            $text = str_replace('[user:first_name]'       , ucfirst(mb_strtolower($_user->firstname)), $text);
         }
 
         return $text;
+    }
+
+    /**
+     * @param string $content
+     * @param string $search
+     *
+     * @return bool
+     */
+    private function hasText($content, $search)
+    {
+        return strpos($content, $search) !== false;
     }
 }
