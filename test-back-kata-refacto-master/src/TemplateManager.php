@@ -35,36 +35,31 @@ class TemplateManager
 
         if ($quote)
         {
-            $quoteFromRepository = QuoteRepository::getInstance()->getById($quote->id);
-            $usefulObject = SiteRepository::getInstance()->getById($quote->siteId);
-            $destinationOfQuote = DestinationRepository::getInstance()->getById($quote->destinationId);
-
-            if ($this->hasText($text, '[quote:destination_link]')) {
-                $destination = DestinationRepository::getInstance()->getById($quote->destinationId);
-            }
+            $site = SiteRepository::getInstance()->getById($quote->siteId);
+            $destination = DestinationRepository::getInstance()->getById($quote->destinationId);
 
             if ($this->hasText($text, '[quote:summary_html]')) {
                 $text = $this->replaceText(
                     '[quote:summary_html]',
-                    Quote::renderHtml($quoteFromRepository),
+                    $quote->renderHtml($quote),
                     $text
                 );
             }
             if ($this->hasText($text, '[quote:summary]')) {
                 $text = $this->replaceText(
                     '[quote:summary]',
-                    Quote::renderText($quoteFromRepository),
+                    $quote->renderText($quote),
                     $text
                 );
             }
 
-            if ($this->hasText($text, '[quote:destination_name]')) {
-                $text = $this->replaceText('[quote:destination_name]',$destinationOfQuote->countryName,$text);
+            if ($this->hasText($text, '[quote:destination_name]') && $destination instanceof Destination) {
+                $text = $this->replaceText('[quote:destination_name]',$destination->getCountryName(),$text);
             }
         }
 
-        if (isset($destination))
-            $text = $this->replaceText('[quote:destination_link]', $usefulObject->url . '/' . $destination->countryName . '/quote/' . $quoteFromRepository->id, $text);
+        if ($quote instanceof Quote && $site instanceof Site && $destination instanceof Destination)
+            $text = $this->replaceText('[quote:destination_link]', $site->getUrl() . '/' . $destination->getCountryName() . '/quote/' . $quote->getId(), $text);
         else
             $text = $this->replaceText('[quote:destination_link]', '', $text);
 
@@ -73,8 +68,8 @@ class TemplateManager
          * [user:*]
          */
         $user  = (isset($data['user'])  and ($data['user']  instanceof User))  ? $data['user']  : $applicationContext->getCurrentUser();
-        if($user && $this->hasText($text, '[user:first_name]')) {
-            $text = $this->replaceText('[user:first_name]'       , ucfirst(mb_strtolower($user->firstname)), $text);
+        if($user instanceof User && $this->hasText($text, '[user:first_name]')) {
+            $text = $this->replaceText('[user:first_name]', $user->getFirstname(), $text);
         }
 
         return $text;
