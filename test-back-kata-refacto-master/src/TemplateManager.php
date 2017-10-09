@@ -2,28 +2,40 @@
 
 class TemplateManager
 {
+    /**
+     * @param Template $tpl
+     * @param array $data
+     *
+     * @return Template
+     */
     public function getTemplateComputed(Template $tpl, array $data)
     {
         if (!$tpl) {
             throw new \RuntimeException('no tpl given');
         }
 
-        $replaced = clone($tpl);
+        $replaced = clone $tpl;
         $replaced->subject = $this->computeText($replaced->subject, $data);
         $replaced->content = $this->computeText($replaced->content, $data);
 
         return $replaced;
     }
 
+    /**
+     * @param string $text
+     * @param array $data
+     *
+     * @return string
+     */
     private function computeText($text, array $data)
     {
-        $APPLICATION_CONTEXT = ApplicationContext::getInstance();
+        $applicationContext = ApplicationContext::getInstance();
 
         $quote = (isset($data['quote']) and $data['quote'] instanceof Quote) ? $data['quote'] : null;
 
         if ($quote)
         {
-            $_quoteFromRepository = QuoteRepository::getInstance()->getById($quote->id);
+            $quoteFromRepository = QuoteRepository::getInstance()->getById($quote->id);
             $usefulObject = SiteRepository::getInstance()->getById($quote->siteId);
             $destinationOfQuote = DestinationRepository::getInstance()->getById($quote->destinationId);
 
@@ -34,14 +46,14 @@ class TemplateManager
             if ($this->hasText($text, '[quote:summary_html]')) {
                 $text = $this->replaceText(
                     '[quote:summary_html]',
-                    Quote::renderHtml($_quoteFromRepository),
+                    Quote::renderHtml($quoteFromRepository),
                     $text
                 );
             }
             if ($this->hasText($text, '[quote:summary]')) {
                 $text = $this->replaceText(
                     '[quote:summary]',
-                    Quote::renderText($_quoteFromRepository),
+                    Quote::renderText($quoteFromRepository),
                     $text
                 );
             }
@@ -52,7 +64,7 @@ class TemplateManager
         }
 
         if (isset($destination))
-            $text = $this->replaceText('[quote:destination_link]', $usefulObject->url . '/' . $destination->countryName . '/quote/' . $_quoteFromRepository->id, $text);
+            $text = $this->replaceText('[quote:destination_link]', $usefulObject->url . '/' . $destination->countryName . '/quote/' . $quoteFromRepository->id, $text);
         else
             $text = $this->replaceText('[quote:destination_link]', '', $text);
 
@@ -60,9 +72,9 @@ class TemplateManager
          * USER
          * [user:*]
          */
-        $_user  = (isset($data['user'])  and ($data['user']  instanceof User))  ? $data['user']  : $APPLICATION_CONTEXT->getCurrentUser();
-        if($_user && $this->hasText($text, '[user:first_name]')) {
-            $text = $this->replaceText('[user:first_name]'       , ucfirst(mb_strtolower($_user->firstname)), $text);
+        $user  = (isset($data['user'])  and ($data['user']  instanceof User))  ? $data['user']  : $applicationContext->getCurrentUser();
+        if($user && $this->hasText($text, '[user:first_name]')) {
+            $text = $this->replaceText('[user:first_name]'       , ucfirst(mb_strtolower($user->firstname)), $text);
         }
 
         return $text;
