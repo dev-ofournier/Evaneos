@@ -30,10 +30,7 @@ class TemplateManager
             if ($this->hasText($text, '[quote:destination_link]')) {
                 $destination = DestinationRepository::getInstance()->getById($quote->destinationId);
             }
-
-            $containsSummaryHtml = strpos($text, '[quote:summary_html]');
-            $containsSummary     = strpos($text, '[quote:summary]');
-
+            
             if ($this->hasText($text, '[quote:summary_html]')) {
                 $text = str_replace(
                     '[quote:summary_html]',
