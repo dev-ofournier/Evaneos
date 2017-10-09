@@ -32,14 +32,14 @@ class TemplateManager
             }
 
             if ($this->hasText($text, '[quote:summary_html]')) {
-                $text = str_replace(
+                $text = $this->replaceText(
                     '[quote:summary_html]',
                     Quote::renderHtml($_quoteFromRepository),
                     $text
                 );
             }
             if ($this->hasText($text, '[quote:summary]')) {
-                $text = str_replace(
+                $text = $this->replaceText(
                     '[quote:summary]',
                     Quote::renderText($_quoteFromRepository),
                     $text
@@ -47,14 +47,14 @@ class TemplateManager
             }
 
             if ($this->hasText($text, '[quote:destination_name]')) {
-                $text = str_replace('[quote:destination_name]',$destinationOfQuote->countryName,$text);
+                $text = $this->replaceText('[quote:destination_name]',$destinationOfQuote->countryName,$text);
             }
         }
 
         if (isset($destination))
-            $text = str_replace('[quote:destination_link]', $usefulObject->url . '/' . $destination->countryName . '/quote/' . $_quoteFromRepository->id, $text);
+            $text = $this->replaceText('[quote:destination_link]', $usefulObject->url . '/' . $destination->countryName . '/quote/' . $_quoteFromRepository->id, $text);
         else
-            $text = str_replace('[quote:destination_link]', '', $text);
+            $text = $this->replaceText('[quote:destination_link]', '', $text);
 
         /*
          * USER
@@ -62,7 +62,7 @@ class TemplateManager
          */
         $_user  = (isset($data['user'])  and ($data['user']  instanceof User))  ? $data['user']  : $APPLICATION_CONTEXT->getCurrentUser();
         if($_user && $this->hasText($text, '[user:first_name]')) {
-            $text = str_replace('[user:first_name]'       , ucfirst(mb_strtolower($_user->firstname)), $text);
+            $text = $this->replaceText('[user:first_name]'       , ucfirst(mb_strtolower($_user->firstname)), $text);
         }
 
         return $text;
@@ -77,5 +77,17 @@ class TemplateManager
     private function hasText($content, $search)
     {
         return strpos($content, $search) !== false;
+    }
+
+    /**
+     * @param string $search
+     * @param string $replace
+     * @param string $content
+     *
+     * @return string
+     */
+    private function replaceText($search, $replace, $content)
+    {
+        return str_replace($search, $replace, $content);
     }
 }
