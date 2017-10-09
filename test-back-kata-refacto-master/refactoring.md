@@ -22,4 +22,8 @@ The getter allows to recover the value associated with the getter.
 + I remove the variable "$quoteFromRepository" because the variable "$quote" is the same thing. It's an instance of Quote.  
 + I remove the condition ($this->hasText($text, '[quote:destination_link]')) that initialize the variable "$destination". This variable is already defined above.  
 + "Quote::renderHtml" calls the method "renderHtml" of the instance Quote. The variable $quote is too an instance of Quote. So, we can write "$quote->renderHtml". It's the same thing for the method "renderText".  
-+  ucfirst and mb_strtolower allows to transform the variable's format. The getter (getFirstname()) takes care of the format.
++  ucfirst and mb_strtolower allows to transform the variable's format. The getter (getFirstname()) takes care of the format.  
+
+###Commit "add accolade into if/else"
+
+Prefer the braces in order to clearly delineate the block and to have the same structure in the whole class

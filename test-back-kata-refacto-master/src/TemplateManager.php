@@ -58,10 +58,11 @@ class TemplateManager
             }
         }
 
-        if ($quote instanceof Quote && $site instanceof Site && $destination instanceof Destination)
+        if ($quote instanceof Quote && $site instanceof Site && $destination instanceof Destination) {
             $text = $this->replaceText('[quote:destination_link]', $site->getUrl() . '/' . $destination->getCountryName() . '/quote/' . $quote->getId(), $text);
-        else
+        } else {
             $text = $this->replaceText('[quote:destination_link]', '', $text);
+        }
 
         /*
          * USER
